@@ -9,7 +9,7 @@ import java.util.Vector;
 
 import com.mysql.cj.x.protobuf.MysqlxPrepare.Prepare;
 
-public class memberDAO {
+public class MemberDAO {
 	// 드라이버 클래스 로드
 	static { // static 해놓으면 DB에 미리 끌어올려짐
 		try {
@@ -59,3 +59,4 @@ public class memberDAO {
 	
 
 }
+ 
