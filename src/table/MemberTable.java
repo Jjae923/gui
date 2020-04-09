@@ -3,11 +3,14 @@ package table;
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Vector;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
@@ -19,13 +22,13 @@ import javax.swing.table.DefaultTableModel;
 import database.MemberDAO;
 import database.MemberVO;
 
-public class JTableTest4 extends JFrame {
+public class MemberTable extends JFrame implements ActionListener {
 
 	private JPanel contentPane;
-	private JTextField textName;
-	private JTextField textAge;
-	private JTextField textGender;
-	private JTextField textField;
+	private JTextField txtName;
+	private JTextField txtAge;
+	private JTextField txtGender;
+	private JTextField txtGetNo;
 	private JTable table;
 	private JTextField textField_1;
 	private JTextField textField_2;
@@ -33,8 +36,11 @@ public class JTableTest4 extends JFrame {
 	private JTable table_1;
 
 	private MemberDAO dao;
+	// 전체조회
 	private DefaultTableModel model;
-	
+	// 하나조회
+	private DefaultTableModel model1;
+
 	/**
 	 * Launch the application.
 	 */
@@ -42,7 +48,7 @@ public class JTableTest4 extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					JTableTest4 frame = new JTableTest4();
+					MemberTable frame = new MemberTable();
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -54,7 +60,7 @@ public class JTableTest4 extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public JTableTest4() {
+	public MemberTable() {
 		setTitle("회원정보");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
@@ -66,8 +72,6 @@ public class JTableTest4 extends JFrame {
 		// DB 객체 생성
 		dao = new MemberDAO();
 		
-		
-		
 		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		contentPane.add(tabbedPane, BorderLayout.CENTER);
 		
@@ -78,23 +82,23 @@ public class JTableTest4 extends JFrame {
 		JLabel lblNewLabel = new JLabel("이름");
 		panel.add(lblNewLabel);
 		
-		textName = new JTextField();
-		panel.add(textName);
-		textName.setColumns(10);
+		txtName = new JTextField();
+		panel.add(txtName);
+		txtName.setColumns(10);
 		
 		JLabel lblNewLabel_1 = new JLabel("나이");
 		panel.add(lblNewLabel_1);
 		
-		textAge = new JTextField();
-		panel.add(textAge);
-		textAge.setColumns(10);
+		txtAge = new JTextField();
+		panel.add(txtAge);
+		txtAge.setColumns(10);
 		
 		JLabel lblNewLabel_2 = new JLabel("성별");
 		panel.add(lblNewLabel_2);
 		
-		textGender = new JTextField();
-		panel.add(textGender);
-		textGender.setColumns(10);
+		txtGender = new JTextField();
+		panel.add(txtGender);
+		txtGender.setColumns(10);
 		
 		JPanel panel_1 = new JPanel();
 		tabbedPane.addTab("회원조회", null, panel_1, null);
@@ -106,14 +110,21 @@ public class JTableTest4 extends JFrame {
 		JLabel lblNewLabel_3 = new JLabel("회원번호");
 		panel_4.add(lblNewLabel_3);
 		
-		textField = new JTextField();
-		panel_4.add(textField);
-		textField.setColumns(10);
+		txtGetNo = new JTextField();
+		panel_4.add(txtGetNo);
+		txtGetNo.setColumns(10);
 		
 		JButton btnNewButton = new JButton("조회");
+		btnNewButton.addActionListener(this);
 		panel_4.add(btnNewButton);
 		
-		table = new JTable();
+		model1 = getModel();
+		table = new JTable(model1);
+		JScrollPane scrollPane1 = new JScrollPane();
+		scrollPane1.setViewportView(table);
+		panel_1.add(scrollPane1, BorderLayout.CENTER);
+		
+		table = new JTable(getModel());
 		panel_1.add(table, BorderLayout.CENTER);
 		
 		JPanel panel_2 = new JPanel();
@@ -168,6 +179,15 @@ public class JTableTest4 extends JFrame {
 		JScrollPane scrollPane = new JScrollPane();
 		panel_7.add(scrollPane, BorderLayout.CENTER);
 		
+		table_1 = new JTable(getModel());
+		list();
+		scrollPane.setViewportView(table_1);
+		
+		// 회원등록 화면의 성별
+		txtGender.addActionListener(this);
+	}
+
+	public DefaultTableModel getModel() {
 		// mamberTBL의 전체 내용 가져오기
 		String columnNames[]= {"번호","이름","나이","성별"};
 		model = new DefaultTableModel(columnNames,0) {
@@ -176,9 +196,7 @@ public class JTableTest4 extends JFrame {
 				return false;
 			}
 		};
-		table_1 = new JTable(model);
-		list();
-		scrollPane.setViewportView(table_1);
+		return model;
 	}
 	
 	public void list() {
@@ -190,8 +208,33 @@ public class JTableTest4 extends JFrame {
 			model.addRow(objList);
 		}
 	}
-	
-	
-	
-	
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+
+		if(e.getSource()==txtGender) {
+			// 이름과 나이와 성별을 가져온 후
+			MemberVO vo = new MemberVO();
+			vo.setName(txtName.getText());
+			vo.setAge(Integer.parseInt(txtAge.getText()));
+			vo.setGender(txtGender.getText());
+			
+			// 데이터베이스에 입력하기
+			int result = dao.insert(vo);
+			
+			if(result>0) { // 성공
+				JOptionPane.showMessageDialog(this, "입력성공");
+				// 모델이 가지고 있었던 데이터 초기화
+				model.setNumRows(0);
+				list();
+			}else { // 실패
+				JOptionPane.showMessageDialog(this, "입력실패");
+			}
+		}else if(e.getActionCommand().equals("조회")) {
+			// 사용자가 입력한 번호 가져오기
+			int no = Integer.parseInt(txtGetNo.getText());
+			// 번호에 해당하는 정보 가져온 후 보여주기
+			dao.getRow(no);
+		}
+	}
 }

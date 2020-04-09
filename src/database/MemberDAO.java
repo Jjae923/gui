@@ -7,8 +7,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Vector;
 
-import com.mysql.cj.x.protobuf.MysqlxPrepare.Prepare;
-
 public class MemberDAO {
 	// 드라이버 클래스 로드
 	static { // static 해놓으면 DB에 미리 끌어올려짐
@@ -57,6 +55,45 @@ public class MemberDAO {
 		return vecList;
 	}
 	
-
+	public int insert(MemberVO vo) {
+		String sql = "insert into memberTBL values(member_seq.nextval,?,?,?)";
+		int result=0;
+		try(Connection con = getConnection();
+			PreparedStatement pstmt = con.prepareStatement(sql)) {
+			
+			pstmt.setString(1, vo.getName());
+			pstmt.setInt(2, vo.getAge());
+			pstmt.setString(3, vo.getGender());
+			
+			result = pstmt.executeUpdate(); // 쿼리 실행시켜주고 결과 (int로) 받아오기
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return result;
+	}
+	
+	// no에 해당하는 레코드 가져오기
+	public MemberVO getRow(int no) {
+		String sql = "select * from memberTBL where no=?";
+		MemberVO vo = null;
+		try(Connection con = getConnection();
+			PreparedStatement pstmt = con.prepareStatement(sql)) {
+			pstmt.setInt(1, no);
+			ResultSet rs = pstmt.executeQuery();
+			
+			if(rs.next()) {
+				vo=new MemberVO();
+				vo.setNo(rs.getInt(1));
+				vo.setName(rs.getString("name"));
+				vo.setAge(rs.getInt(3));
+				vo.setGender(rs.getString("gender"));
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return vo;
+	}
 }
  
