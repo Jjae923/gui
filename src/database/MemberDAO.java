@@ -7,6 +7,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Vector;
 
+import oracle.jdbc.proxy.annotation.Pre;
+
 public class MemberDAO {
 	// 드라이버 클래스 로드
 	static { // static 해놓으면 DB에 미리 끌어올려짐
@@ -94,6 +96,22 @@ public class MemberDAO {
 			e.printStackTrace();
 		}
 		return vo;
+	}
+	
+	// no 값을 이용해서 회원 삭제하기
+	// delete from memberTBL where no=?
+	public int remove(int no) {
+		int result=0;
+		String sql="delete from memberTBL where no=?";
+		try(Connection con = getConnection();
+			PreparedStatement pstmt = con.prepareStatement(sql)) {
+			
+			pstmt.setInt(1, no);
+			result = pstmt.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return result;
 	}
 }
   
