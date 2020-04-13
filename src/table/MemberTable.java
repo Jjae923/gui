@@ -238,3 +238,4 @@ public class MemberTable extends JFrame implements ActionListener {
 		}
 	}
 }
+ 
