@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.util.Vector;
 
 import oracle.jdbc.proxy.annotation.Pre;
+import com.mysql.cj.x.protobuf.MysqlxPrepare.Prepare;
 
 public class MemberDAO {
 	// 드라이버 클래스 로드
