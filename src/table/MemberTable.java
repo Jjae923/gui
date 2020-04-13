@@ -240,21 +240,6 @@ public class MemberTable extends JFrame implements ActionListener {
 			MemberVO vo = dao.getRow(no);
 			Object[] rowData = {vo.getNo(),vo.getName(),vo.getAge(),vo.getGender()};
 			model1.addRow(rowData);
-		}else if(e.getActionCommand().equals("삭제")) {
-			// 사용자가 입력한 번호 가져오기
-			int no = Integer.parseInt(txtDel.getText());
-			// 해당하는 회원 삭제해주기
-			int result = dao.remove(no);
-			
-			if(result>0) { // 성공
-				JOptionPane.showMessageDialog(this, "삭제성공");
-				// 모델이 가지고 있었던 데이터 초기화
-				model.setNumRows(0);
-				txtDel.setText("");
-				list();
-			}else { // 실패
-				JOptionPane.showMessageDialog(this, "삭제실패");
-			}
 		}
 	}
 }
