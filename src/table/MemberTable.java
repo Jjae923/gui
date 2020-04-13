@@ -32,7 +32,7 @@ public class MemberTable extends JFrame implements ActionListener {
 	private JTable table;
 	private JTextField textField_1;
 	private JTextField textField_2;
-	private JTextField textField_3;
+	private JTextField txtDel;
 	private JTable table_1;
 
 	private MemberDAO dao;
@@ -165,9 +165,9 @@ public class MemberTable extends JFrame implements ActionListener {
 		JLabel lblNewLabel_7 = new JLabel("회원번호");
 		panel_6.add(lblNewLabel_7);
 		
-		textField_3 = new JTextField();
-		panel_6.add(textField_3);
-		textField_3.setColumns(10);
+		txtDel = new JTextField();
+		panel_6.add(txtDel);
+		txtDel.setColumns(10);
 		
 		JButton btnNewButton_2 = new JButton("삭제");
 		panel_6.add(btnNewButton_2);
@@ -179,12 +179,15 @@ public class MemberTable extends JFrame implements ActionListener {
 		JScrollPane scrollPane = new JScrollPane();
 		panel_7.add(scrollPane, BorderLayout.CENTER);
 		
+		//memberTBL의 전체 내용 가져오기
 		table_1 = new JTable(getModel());
 		list();
 		scrollPane.setViewportView(table_1);
 		
 		// 회원등록 화면의 성별
 		txtGender.addActionListener(this);
+		// 회원삭제
+		btnNewButton_2.addActionListener(this);
 	}
 
 	public DefaultTableModel getModel() {
@@ -234,7 +237,24 @@ public class MemberTable extends JFrame implements ActionListener {
 			// 사용자가 입력한 번호 가져오기
 			int no = Integer.parseInt(txtGetNo.getText());
 			// 번호에 해당하는 정보 가져온 후 보여주기
-			dao.getRow(no);
+			MemberVO vo = dao.getRow(no);
+			Object[] rowData = {vo.getNo(),vo.getName(),vo.getAge(),vo.getGender()};
+			model1.addRow(rowData);
+		}else if(e.getActionCommand().equals("삭제")) {
+			// 사용자가 입력한 번호 가져오기
+			int no = Integer.parseInt(txtDel.getText());
+			// 해당하는 회원 삭제해주기
+			int result = dao.remove(no);
+			
+			if(result>0) { // 성공
+				JOptionPane.showMessageDialog(this, "삭제성공");
+				// 모델이 가지고 있었던 데이터 초기화
+				model.setNumRows(0);
+				txtDel.setText("");
+				list();
+			}else { // 실패
+				JOptionPane.showMessageDialog(this, "삭제실패");
+			}
 		}
 	}
 }
